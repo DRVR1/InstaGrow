@@ -19,9 +19,11 @@ class Controller():
         '''
         user = self.add_load_bot(username,password)
         user.startDriver()
-        result = user.login()
-        user.act(option)
-
+        user.login()
+        result = user.act(option)
+        if(result==2):
+            self.talk('Action limit per day reached. You can change this value in the account configuration (not recomended for new accounts).')
+            input('Continue?')
 
 
     def add_load_instagram_account(self,username,password=None)->Instagram_Account:

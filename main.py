@@ -197,12 +197,15 @@ def menu_manage_accounts(back_username:str=False):
 
     if op == 9:#2 mass unfollow
         controller.start(user.username, user.password, 1)
+        menu_manage_accounts(user.username)
 
     if op == 10: #Follow by target
         controller.start(user.username, user.password, 2)
+        menu_manage_accounts(user.username)
 
     if op == 11: #unfollow by followed in app
         controller.start(user.username, user.password, 3)
+        menu_manage_accounts(user.username)
 
 
 

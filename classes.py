@@ -115,7 +115,7 @@ class Bot_Account(Instagram_Account):
 
         self.talk("trying to scroll...")
         self.driver.execute_script('''
-        window.scrollBy(0,2000)                           
+        window.scrollBy(0,230)                           
         ''')
         self.talk("scrolled...")
 
@@ -210,8 +210,6 @@ class Bot_Account(Instagram_Account):
 
     def act(self,action: int):
         '''
-        target: username of target account (if following)
-        tokens: 'credit' until return
         actions:
             1. Mass unfollow everyone
             2. Follow Followers of target (select random target from list) (configure from menu first)
@@ -231,6 +229,7 @@ class Bot_Account(Instagram_Account):
                 self.goto(instaUrl+target)
                 self.driver.click('/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/ul/li[2]/a') #since instagram blocks direct access to the followers list, you must click the "followers" button from their profile instead of accessing the followers URL.
             divnumber=0
+            except_streak = 0
             while True: #loop follow/unfollow
                 #Check if user can perform actions
                 if not self.check_avaliable():
@@ -249,6 +248,7 @@ class Bot_Account(Instagram_Account):
                         #perform action (unfollow)
                         self.driver.click(followbtn)
                         self.driver.click('button:contains("Unfollow")')
+                        except_streak=0
 
                         # Save stats to user object 
                         self.total_unfollowed+=1
@@ -273,6 +273,7 @@ class Bot_Account(Instagram_Account):
                         if not (buttonvalue == 'Follow'):
                             continue
                         self.driver.click(followbtn)
+                        except_streak=0
 
                         # Save stats to user object 
                         self.total_followed+=1
@@ -287,8 +288,11 @@ class Bot_Account(Instagram_Account):
                     self.wait(self.wait_after_click) #wait to perform another action
                     self.saveInstance()
                 except Exception as e:
-                    #print(e)
                     self.scroll()
+                    divnumber-=1
+                    except_streak+=1
+                    if except_streak>=3:
+                        return
                     
 
         elif action==3:# Unfollow automated followed
