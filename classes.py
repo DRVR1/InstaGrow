@@ -3,6 +3,7 @@ import random
 import datetime
 from datetime import timedelta
 from seleniumbase import Driver
+from seleniumbase.fixtures import xpath_to_css
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey,Table,Column, DateTime, Integer,Boolean, insert
 from sqlalchemy.orm import sessionmaker, relationship,scoped_session
 from sqlalchemy.sql import func
@@ -108,7 +109,6 @@ class Bot_Account(Instagram_Account):
     def goto(self,url):
         self.driver.open(url)
         self.talk("Going to " + url)
-        self.wait(3,'loading site')
 
     def scroll(self):
         '''Scroll followers window (instagram.com/user/followers)'''
@@ -119,33 +119,48 @@ class Bot_Account(Instagram_Account):
         ''')
         self.talk("scrolled...")
 
-    def unfollow(self,target): #since the program cannot detect if the user accepted the follow request, try both cases.
+    def unfollow(self,target,following_list): #since the program cannot detect if the user accepted the follow request, try both cases.
+        self.goto(config.userUrl+target)
+
         '''When on user page, click unfollow'''
+        unfollow=True
+        unfollowed = False
+
+        follow_unfollow_button = xpath_to_css.convert_xpath_to_css(config.xpath_profile_FollowUnfolowButton_loggedIn())
+        #TODO optimize wait time
+        self.wait(4,'Elements load')
         try:
-            self.driver.click('button:contains("Following")')
-            self.driver.click(self.convert_xpath_to_css("//span[text()='Unfollow']"))
-            #if following button is not present, it may be a 'requested' button
+            button = self.driver.find_elements(follow_unfollow_button)[0]
+            if(button.text == 'Follow'):
+                self.talk('Not following user, erasing and returning')
+                unfollow=False
         except:
-            try:
-                self.driver.click('button:contains("Requested")')
-                self.driver.click('button:contains("Unfollow")')
-            except:
-                self.talk("Error unfollowing " + target)
-                return
-            
-        #save stats
-        try:
-            self.tokens-=1
-            following_list = json.loads(self.following_list_json)
-            try:
-                following_list.remove(target)
-            except:
-                self.talk("Error: user was'nt in database")
-            self.following_list_json = json.dumps(following_list)
-            self.saveInstance()
-        except:
-            self.talk('Error saving stats')
             pass
+        if unfollow:
+            try:
+                self.driver.click('button:contains("Following")')
+                self.driver.click('span:contains("Unfollow")')
+                unfollowed=True
+                #if following button is not present, it may be a 'requested' button
+            except:
+                try:
+                    self.driver.click('button:contains("Requested")')
+                    self.driver.click('button:contains("Unfollow")')
+                    unfollowed=True
+                except:
+                    self.talk("Error unfollowing " + target)
+        #save stats
+        if unfollowed:
+            self.tokens-=1
+            self.wait(1,'Unfollowing')
+            self.talk('Unfollowed ' + target)
+        try:
+            following_list.remove(target)
+        except:
+            self.talk("Error: user was'nt in database")
+        self.following_list_json = json.dumps(following_list)
+        self.saveInstance()
+
 
     def check_avaliable(self)->bool:
         if self.tokens<=0 and self.avaliable:
@@ -224,8 +239,8 @@ class Bot_Account(Instagram_Account):
                     divnumber+=1
                     if action==1: #unfollow self following
                         #get buttons and button data
-                        username = config.xpath_followlist_username(str(divnumber))
-                        followbtn = config.xpath_followlist_follow_unfollow_button(str(divnumber))
+                        username = config.xpath_following_username(str(divnumber))
+                        followbtn = config.xpath_following_FollowUnfolowButton(str(divnumber))
                         followedname = self.driver.get_text(username)
 
                         #print something
@@ -246,8 +261,8 @@ class Bot_Account(Instagram_Account):
 
                     if action==2: #follow target's followers
                         #get buttons and button data
-                        username = config.xpath_followers_username(str(divnumber))
-                        followbtn = config.xpath_followers_follow_unfollow_button(str(divnumber))
+                        username = config.xpath_followers_username_restricted(str(divnumber))
+                        followbtn = config.xpath_followers_FollowUnfolowButton_restricted(str(divnumber))
                         followedname = self.driver.get_text(username)
                         buttonvalue = self.driver.get_text(followbtn)
                         
@@ -271,7 +286,8 @@ class Bot_Account(Instagram_Account):
                     self.talk('Remaining actions: ' + str(self.tokens))
                     self.wait(self.wait_after_click) #wait to perform another action
                     self.saveInstance()
-                except:
+                except Exception as e:
+                    #print(e)
                     self.scroll()
                     
 
@@ -279,12 +295,11 @@ class Bot_Account(Instagram_Account):
             #checks if user can perform actions
             if not self.check_avaliable():
                 return 2
-            self.following_list_json = json.loads(self.following_list_json)
-            for target in self.following_list_json:
+            following_list = json.loads(self.following_list_json)
+            for target in following_list:
                 if not self.check_avaliable():
                     return
-                self.goto(instaUrl+target)
-                self.unfollow(target)
+                self.unfollow(target,following_list)
    
     def login(self):
         self.talk("Trying to login into " + self.username)
@@ -292,7 +307,6 @@ class Bot_Account(Instagram_Account):
         self.driver.type('input[name="username"]', self.username)
         self.driver.type('input[type="password"]', self.password)
         self.driver.click('button:contains("Log in")')
-        #self.wait(4,'After login')
         if(self.checkText("Save your login info?")):
             self.talk("login checked")
             self.logins+=1

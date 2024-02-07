@@ -7,7 +7,6 @@ controller = Controller()
 def menu_delete_account(accname):
     controller.remove_bot(accname)
     
-
 def menu_add_account():         
     username = str(input("\nUsername: @"))
     password = str(input("\nPassword: "))
@@ -114,8 +113,10 @@ def menu_manage_accounts(back_username:str=False):
             input("\nContinue?\n")
             menu_manage_accounts(user.username)
         print('Accounts you follow using this app:\n')
+        i=0
         for acc in following:
-            print('@'  + acc)
+            i+=1
+            print(str(i)+'. '+'@'  + acc)
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
     if op == 5:        
@@ -194,7 +195,7 @@ def menu_manage_accounts(back_username:str=False):
         user.saveInstance()
         menu_manage_accounts(user.username)
 
-    if op == 9:# just mass unfollow
+    if op == 9:#2 mass unfollow
         controller.start(user.username, user.password, 1)
 
     if op == 10: #Follow by target
