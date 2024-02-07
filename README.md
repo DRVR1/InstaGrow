@@ -18,6 +18,7 @@ Make your Instagram account grow in a slow and safe way by performing a defined 
 
 ## Requirements
 
+- Python3
 - SeleniumBase
 - Json
 - sqlalchemy
