@@ -9,6 +9,7 @@ Make your Instagram account grow in a slow and safe way by performing a defined 
 
 ## Coming soon:
 - AutoStartup and automatic actions (no human intervention needed).
+- Unfollow people who unfollowed you
 - Gui (A full and user-friendly user interface to make it simpler to use).
 - Can be used with a proxy & handle multiple accounts (Concurrently)
 - Automatic content posting (posts, comments, likes, histories).
