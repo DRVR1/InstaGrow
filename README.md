@@ -3,6 +3,9 @@
 ## Project Description
 Make your Instagram account grow in a slow and safe way by performing a defined number of actions per day to increase visibility.
 
+## Security Warning:
+Since this is a pre-alpha, some functions are not yet avaliable, such as user data encryption. Your instagram password will be saved in a .db file in your appData folder. It won't be encrypted. Use it at your own risk.
+
 ## Features:
 - Anti-ban precautions (Seleniumbase's undetected chromedriver + limited number of actions per day).
 - Mass follow / unfollow instagram accounts.
