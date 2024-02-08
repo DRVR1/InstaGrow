@@ -2,6 +2,7 @@ from time import sleep
 import random
 import datetime
 from datetime import timedelta
+import os
 from seleniumbase import Driver
 from seleniumbase.fixtures import xpath_to_css
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey,Table,Column, DateTime, Integer,Boolean, insert
@@ -92,6 +93,11 @@ class Bot_Account(Instagram_Account):
         session.commit()
 
     def startDriver(self,proxy=False):
+        
+        self.talk('Starting ChromeDriver...')
+        from seleniumbase.config import settings
+        settings.HIDE_DRIVER_DOWNLOADS = True #hide download warning for pyinstaller users
+
         if not self.browser_visible:
             self.driver = Driver(uc=True,locale_code='en',proxy=proxy,is_mobile=True,headed=False,headless=True)
         else:
@@ -112,12 +118,9 @@ class Bot_Account(Instagram_Account):
 
     def scroll(self):
         '''Scroll followers window (instagram.com/user/followers)'''
-
-        self.talk("trying to scroll...")
-        self.driver.execute_script('''
-        window.scrollBy(0,230)                           
-        ''')
-        self.talk("scrolled...")
+        scrollby = '230'
+        self.driver.execute_script(f'''window.scrollBy(0,{scrollby})''')
+        self.talk("Scrolled " + scrollby + 'px.')
 
     def unfollow(self,target,following_list): #since the program cannot detect if the user accepted the follow request, try both cases.
         self.goto(config.userUrl+target)
@@ -327,7 +330,10 @@ class Bot_Account(Instagram_Account):
         except:
             return False
         
-engine = create_engine('sqlite:///InstaGrow.UserData.db')
+
+
+# Create the SQLAlchemy engine
+engine = create_engine(f'sqlite:///{config.db_file_path}')
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()

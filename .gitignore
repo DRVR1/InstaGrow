@@ -2,3 +2,7 @@
 *.pyc
 *.db
 *.lock
+*.exe
+main.spec
+dist/
+resources/setup_script.iss

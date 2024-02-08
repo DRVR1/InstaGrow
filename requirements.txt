@@ -1,0 +1,6 @@
+cssselect==1.2.0
+pyinstaller==6.3.0
+pytest==7.4.4
+selenium==4.16.0
+seleniumbase==4.22.4
+SQLAlchemy==2.0.24

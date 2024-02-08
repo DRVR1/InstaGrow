@@ -1,3 +1,9 @@
+import os
+
+#===============|String Values|================:
+AppName = 'InstaGrow'
+AppVersion = 'Pre_Alpha'
+
 stat_value_status = ['following','unfollowing','resting']
 '''0) following
    1) unfollowing
@@ -6,14 +12,18 @@ stat_key_followed = 'followed'
 stat_key_unfollowed = 'unfollowed'
 stat_key_logins = 'logins'
 stat_key_count = 'count'
-
-
 #===============|Url's|================:
 loginurl = 'https://www.instagram.com/accounts/login/'
 userUrl = "https://www.instagram.com/" # + username/
 
 ##===============|Proxy|================:
 proxy='unknown'
+
+##===============|WINDOWS PATHS|================:
+app_data_dir = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', AppName)
+if not os.path.exists(app_data_dir):
+    os.makedirs(app_data_dir)
+db_file_path = os.path.join(app_data_dir, f'{AppName}.UserData.db')
 
 ##===============|XPATHS|================:
 

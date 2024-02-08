@@ -90,12 +90,14 @@ def menu_manage_accounts(back_username:str=False):
         op = str(input("\nNew username: @"))
         user.username = op
         user.saveInstance()
+        input("\nContinue?\n")
         menu_manage_accounts(user.username)
     if op==2:
         print("Note that this changes are NOT applied to your instagram account.")
         op = str(input("\nNew password: "))
         user.password = op
         user.saveInstance()
+        input("\nContinue?\n")
         menu_manage_accounts(back_username=user.username)
     if op==3:
         print('Username: ' + user.username)
