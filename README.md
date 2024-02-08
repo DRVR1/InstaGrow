@@ -47,6 +47,6 @@ Since this app uses the Chrome browser to perform actions on Instagram web, it c
 - Mass Unfollow Everyone<br>
 Warning: This will unfollow everyone, which may include friends or relevant accounts.<br><br>
 - Mass Follow (by Target)<br>
-Randomly selects a user from the target list (this list must be configured first) and then mass follows its followers.<br><br>
+Randomly selects an user from the target list (this list must be configured first) and then mass follows its followers.<br><br>
 - Mass Unfollow (Followed by Using This App)<br>
 Only unfollows those who were followed using this app.
