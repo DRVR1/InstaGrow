@@ -25,8 +25,7 @@ Make your Instagram account grow in a slow and safe way by performing a defined 
 - SeleniumBase
 - Json
 - sqlalchemy
-- Pyinstaller
-
+  
 ## How to use (options explained)
 
 - Change Username<br>
