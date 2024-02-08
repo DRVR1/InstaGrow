@@ -1,3 +1,6 @@
+#This script will use pyInstaller and Inno Setup Compiler to create an installation file for the software.
+#Both pyinstaller and Inno, are required in order to run this script. 
+
 import os
 import shutil
 import subprocess
