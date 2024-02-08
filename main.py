@@ -225,7 +225,8 @@ def menu_manage_accounts(back_username:str=False):
 def menu():
     os.system('cls')
     print("\nWelcome.")
-    print('Remember to disable 2FA (two factor autentication)')
+    print('Remember to disable 2FA (two factor autentication), otherwise, automation won\'t work.\n')
+    print(f'All your data will be saved in: \n{config.db_file_path}')
     
     text='''          
     1. Add account
