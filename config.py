@@ -1,8 +1,17 @@
+#dropping files in:
+#appData
+#programFiles
+#autorun
+
 import os
+import sys
+
+debug_mode = False
 
 #===============|String Values|================:
 AppName = 'InstaGrow'
 AppVersion = 'Pre_Alpha'
+AutoRun_Script_Name = 'InstaGrow.bat'
 
 stat_value_status = ['following','unfollowing','resting']
 '''0) following
@@ -23,7 +32,16 @@ proxy='unknown'
 app_data_dir = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', AppName)
 if not os.path.exists(app_data_dir):
     os.makedirs(app_data_dir)
+    
 db_file_path = os.path.join(app_data_dir, f'{AppName}.UserData.db')
+
+def get_startup_folder():
+    appdata_path = os.environ.get('APPDATA')
+    startup_folder = os.path.join(appdata_path, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+    return startup_folder
+
+def get_running_path():
+   return sys.executable
 
 ##===============|XPATHS|================:
 

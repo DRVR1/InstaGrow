@@ -1,5 +1,40 @@
+#Description
 #This script will use pyInstaller and Inno Setup Compiler to create an installation file for the software.
 #Both pyinstaller and Inno, are required in order to run this script. 
+#output: an executable file for the program, and an installer.
+
+#IMPORTANT BEFORE PACKING
+# -Inno Setup 6 must be installed in your windows computer
+# - you must patch seleniumbase's code. 
+#By not doing this, there will be unexpected behavior if the program gets installed in a write-protected folder, as explained in this thread: https://github.com/seleniumbase/SeleniumBase/issues/2479
+
+#file: seleniumbase/fixtures/constants.py
+#replace this code:
+'''
+class Files:
+    # This is a special downloads folder for files downloaded by tests.
+    # The "downloaded_files" folder is DELETED when starting new tests.
+    # Add "--archive-downloads" to save a copy in "archived_files".
+    # (These folder names should NOT be changed.)
+    DOWNLOADS_FOLDER = "downloaded_files"
+    ARCHIVED_DOWNLOADS_FOLDER = "archived_files"
+
+'''
+#with this code:
+'''
+import os
+app_data_dir = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'InstaGrow')
+if not os.path.exists(app_data_dir):
+    os.makedirs(app_data_dir)
+
+class Files:
+    # This is a special downloads folder for files downloaded by tests.
+    # The "downloaded_files" folder is DELETED when starting new tests.
+    # Add "--archive-downloads" to save a copy in "archived_files".
+    # (These folder names should NOT be changed.)
+    DOWNLOADS_FOLDER = app_data_dir
+    ARCHIVED_DOWNLOADS_FOLDER = "archived_files"
+'''
 
 import os
 import shutil

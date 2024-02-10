@@ -97,7 +97,22 @@ class Controller():
     def talk(self,words:str):
         print('Controller: ' + words)
 
-    
+    def windows_create_autostartup(self):
+        '''Creates an autostartup batch file in the windows startup folder.'''
+        
+        script=f"start /min \"\" \"{config.get_running_path()}\""
+        script_path = os.path.join(config.get_startup_folder(),config.AutoRun_Script_Name)
+        self.talk(f'Creating startup file...\nPath:{script_path}')
+        try:
+            with open(script_path, "w") as file:
+                file.write(script)
+                file.close()
+                self.talk('Created.')
+        except:
+            print(f'Error writing the script path. AutoStartup was not enabled. \nPath: {script_path}')
+            input('return')
+
+        pass
 
     '''Website functions (if you are coming from github, ignore the following code)'''
     def website_bot_follow(self):

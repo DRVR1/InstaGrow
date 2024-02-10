@@ -95,8 +95,10 @@ class Bot_Account(Instagram_Account):
     def startDriver(self,proxy=False):
         
         self.talk('Starting ChromeDriver...')
-        from seleniumbase.config import settings
-        settings.HIDE_DRIVER_DOWNLOADS = True #hide download warning for pyinstaller users
+
+        if not config.debug_mode:
+            from seleniumbase.config import settings
+            settings.HIDE_DRIVER_DOWNLOADS = True #hide download warning for pyinstaller users
 
         if not self.browser_visible:
             self.driver = Driver(uc=True,locale_code='en',proxy=proxy,is_mobile=True,headed=False,headless=True)

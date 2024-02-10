@@ -1,4 +1,5 @@
 from classes import *
+import config
 from controller import Controller
 import os
 
@@ -224,14 +225,16 @@ def menu_manage_accounts(back_username:str=False):
 
 def menu():
     os.system('cls')
-    print("\nWelcome.")
+    if config.debug_mode:
+        print(f'Startup folder: {config.get_startup_folder()}')
+        print(f'Executing from: {config.get_running_path()}')
+    print("Welcome.")
     print('Remember to disable 2FA (two factor autentication), otherwise, automation won\'t work.\n')
     print(f'All your data will be saved in: \n{config.db_file_path}')
     
     text='''          
     1. Add account
     2. Manage accounts
-    3. Autostartup (TODO) 
     0. Exit'''
     print(text)
 
@@ -245,6 +248,10 @@ def menu():
         menu_add_account()
     if (op == 2):
         menu_manage_accounts()
+    if (op==3):
+        #controller.windows_create_autostartup()
+        #input('continue')
+        menu()
     if (op ==0):
         return
 
