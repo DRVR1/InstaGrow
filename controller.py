@@ -19,9 +19,11 @@ class Controller():
         '''
         user = self.add_load_bot(username,password)
         user.startDriver()
-        user.login()
-        result = user.act(option)
-        if(result==2):
+        login_result = user.login()
+        if login_result ==100:
+            return
+        act_result = user.act(option)
+        if(act_result==200):
             self.talk('Action limit per day reached. You can change this value in the account configuration (not recomended for new accounts).')
             input('Continue?')
 

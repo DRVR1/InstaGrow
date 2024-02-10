@@ -321,7 +321,9 @@ class Bot_Account(Instagram_Account):
             self.logins+=1
             self.saveInstance()
         else:
-            self.talk("Could not check login sucess")
+            self.talk("Could not check login sucess, please check your credentials or disable 2FA")
+            self.driver.close()
+            input('continue')
             return 100
         
     def checkText(self,text: str) -> bool:
