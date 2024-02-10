@@ -1,7 +1,7 @@
 # InstaGrow (Pre Alpha)
 
 ## Project Description
-Make your Instagram account grow in a slow and safe way by performing a defined number of actions per day to increase visibility.
+Computer softare, that automatically logs in your instagram account, and performs a defined number of actions per day, increasing your account visibility. You can download the installation file for windows.
 
 ## Security Warning:
 Since this is a pre-alpha, some functions are not yet avaliable, such as user data encryption. Your instagram password will be saved in a .db file in your appData folder. It won't be encrypted. Use it at your own risk.
