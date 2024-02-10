@@ -6,3 +6,5 @@
 main.spec
 dist/
 resources/setup_script.iss
+InstaGrow.spec
+resources/InstaGrow.ico

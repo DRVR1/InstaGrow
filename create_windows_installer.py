@@ -47,6 +47,7 @@ folder_resources = 'resources'
 
 
 #inno setup
+icon_name='InstaGrow.ico'
 setup_compiler_path = r"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" 
 script_path = f"{folder_resources}\\setup_script.iss"  
 output_dir = 'Windows_Setup_Output'
@@ -86,6 +87,7 @@ def pyInstaller():
     print('Creating setup file')
 
 def innoSetup():
+    os.system(f"icoextract {folder_resources}\\{config.AppName}.exe {folder_resources}\\{icon_name}")
 
     script=f'''
 [Setup]
@@ -97,13 +99,16 @@ OutputDir={output_dir}
 OutputBaseFilename={config.AppName} Installer
 Compression=lzma
 SolidCompression=yes
+UninstallDisplayIcon={{app}}\\{icon_name}
+UninstallDisplayName={config.AppName} ({config.AppVersion})
 
 [Files]
 Source: "{config.AppName}.exe"; DestDir: "{{app}}\{config.AppName}"
+Source: "{icon_name}"; DestDir: "{{app}}"
 
 [Icons]
-Name: "{{group}}\{config.AppName}"; Filename: "{{app}}\{config.AppName}\{config.AppName}.exe"
-Name: "{{commondesktop}}\{config.AppName}"; Filename: "{{app}}\{config.AppName}\{config.AppName}.exe"
+Name: "{{group}}\\{config.AppName}"; Filename: "{{app}}\\{config.AppName}\\{config.AppName}.exe"
+Name: "{{commondesktop}}\\{config.AppName}"; Filename: "{{app}}\\{config.AppName}\\{config.AppName}.exe"
 '''
     # Write the script content to a file
     try:

@@ -10,7 +10,7 @@ debug_mode = False
 
 #===============|String Values|================:
 AppName = 'InstaGrow'
-AppVersion = 'Pre_Alpha'
+AppVersion = 'pre-alpha'
 AutoRun_Script_Name = 'InstaGrow.bat'
 
 stat_value_status = ['following','unfollowing','resting']
