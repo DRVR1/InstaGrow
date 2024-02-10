@@ -1,7 +1,7 @@
 # InstaGrow (Pre Alpha)
 
 ## Project Description
-Computer softare, that automatically logs in your instagram account, and performs a defined number of actions per day, increasing your account visibility. You can download the installation file for windows.
+Computer softare, that automatically logs in your instagram account, and performs a defined number of actions per day, increasing your account visibility. 
 
 ## Security Warning:
 Since this is a pre-alpha, some functions are not yet avaliable, such as user data encryption. Your instagram password will be saved in a .db file in your appData folder. It won't be encrypted. Use it at your own risk.
