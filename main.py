@@ -210,7 +210,14 @@ def menu_manage_accounts(back_username:str=False):
         controller.start(user.username, user.password, 3)
         menu_manage_accounts(user.username)
 
-
+    if op == 12: #configure automatic actions
+        #set an autostartup flag
+        #check for bots that have this flag
+        #read the bot configuration
+        #perform actions
+        #notify user
+        #confinue with another bot
+        pass
 
     if op == 99:
         op = int(input('\nThis will get the data of your account deleted from this program. \n\n1. Delete\n2. Cancel\nInput: '))
@@ -249,8 +256,12 @@ def menu():
     if (op == 2):
         menu_manage_accounts()
     if (op==3):
-        #controller.windows_create_autostartup()
-        #input('continue')
+        controller.windows_create_autostartup()
+        input('continue')
+        menu()
+    if (op==4):
+        controller.windows_remove_autostartup()
+        input('continue')
         menu()
     if (op ==0):
         return

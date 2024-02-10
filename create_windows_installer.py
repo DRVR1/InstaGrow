@@ -4,11 +4,12 @@
 #output: an executable file for the program, and an installer.
 
 #IMPORTANT BEFORE PACKING
-# -Inno Setup 6 must be installed in your windows computer
-# - you must patch seleniumbase's code. 
-#By not doing this, there will be unexpected behavior if the program gets installed in a write-protected folder, as explained in this thread: https://github.com/seleniumbase/SeleniumBase/issues/2479
+# - Inno Setup 6 must be installed in your windows computer
+# - You must patch seleniumbase's code. 
+# By not patching it, there will be unexpected behavior if the program gets installed in a write-protected folder, as explained in this thread: https://github.com/seleniumbase/SeleniumBase/issues/2479
 
-#file: seleniumbase/fixtures/constants.py
+#file: Python/Lib/site-packages/seleniumbase/fixtures/constants.py
+#seleniumbase version: 4.22.4
 #replace this code:
 '''
 class Files:
@@ -41,10 +42,15 @@ import shutil
 import subprocess
 import config
 
+if config.debug_mode:
+    os.system('cls')
+    os.system('color C')
+    print('WARNING: DEBUG MODE IS ENABLED')
+    input('continue?')
+
 #general
 appName = config.AppName
 folder_resources = 'resources'
-
 
 #inno setup
 icon_name='InstaGrow.ico'
@@ -60,8 +66,7 @@ def pyInstaller():
     os.system('cls')
     print(f'{appName} windows package setup\n')
     print('This setup will install the python requirements, pack the code and create an installation file.\n')
-    print(f'WARNING: you should have Inno Setup Compiler installed.\nPath: {setup_compiler_path}\nIf the path doesn\'t match, change it in this script.')
-    print(f'Script location: {script_path}')
+    print(f'WARNING: you should have Inno Setup Compiler installed in the following path:\n\nPATH: {setup_compiler_path}\n\nIf the path doesn\'t match, change it in this script.\n')
     input('Continue?')
 
     if not os.path.exists(setup_compiler_path):
@@ -121,8 +126,6 @@ Name: "{{commondesktop}}\\{config.AppName}"; Filename: "{{app}}\\{config.AppName
         exit()
 
     subprocess.run([setup_compiler_path, script_path])
-
-    print(f'Done. setup located in {folder_resources}/{output_dir}')
     input('Press a key to exit')
 
 pyInstaller()

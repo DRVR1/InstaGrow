@@ -232,13 +232,21 @@ class Bot_Account(Instagram_Account):
                     input("Continue")
                     return 1
                 self.goto(instaUrl+target)
-                self.driver.click('/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/ul/li[2]/a') #since instagram blocks direct access to the followers list, you must click the "followers" button from their profile instead of accessing the followers URL.
+
+                button_following_xpath = '/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/ul/li[2]/a'
+                if config.debug_mode:
+                    self.talk(f'trying to click {button_following_xpath}')
+                self.driver.click(button_following_xpath) #since instagram blocks direct access to the followers list, you must click the "followers" button from their profile instead of accessing the followers URL.
+                if config.debug_mode:
+                    self.talk(f'clicked?')
             divnumber=0
             except_streak = 0
+            restricted = False
             while True: #loop follow/unfollow
                 #Check if user can perform actions
                 if not self.check_avaliable():
-                    return 2
+                    self.driver.close()
+                    return 200
                 try:
                     divnumber+=1
                     if action==1: #unfollow self following
@@ -253,7 +261,7 @@ class Bot_Account(Instagram_Account):
                         #perform action (unfollow)
                         self.driver.click(followbtn)
                         self.driver.click('button:contains("Unfollow")')
-                        except_streak=0
+                        except_streak=0#reset excepction streak
 
                         # Save stats to user object 
                         self.total_unfollowed+=1
@@ -264,13 +272,31 @@ class Bot_Account(Instagram_Account):
                         except:
                             pass
 
-                    if action==2: #follow target's followers
+                    if action==2:#follow target's followers
+
                         #get buttons and button data
-                        username = config.xpath_followers_username_restricted(str(divnumber))
-                        followbtn = config.xpath_followers_FollowUnfolowButton_restricted(str(divnumber))
-                        followedname = self.driver.get_text(username)
-                        buttonvalue = self.driver.get_text(followbtn)
-                        
+                        username = config.xpath_followers_username_unrestricted(str(divnumber))
+                        followbtn = config.xpath_followers_FollowUnfolowButton_unrestricted(str(divnumber))
+                        if config.debug_mode:
+                            self.talk('finding elements as unrestricted follower list:')
+                            self.talk(f'username: {username}\nfollowbtn: {followbtn}')
+
+                        followedname=''
+                        buttonvalue=''
+                        try:
+                            if restricted:
+                                username = config.xpath_followers_username_restricted(str(divnumber))
+                                followbtn = config.xpath_followers_FollowUnfolowButton_restricted(str(divnumber))
+                            followedname = self.driver.get_text(username)
+                            buttonvalue = self.driver.get_text(followbtn)
+                        except:
+                            if restricted == True:
+                                self.driver.close()
+                                return 100
+                            if(config.debug_mode):
+                                self.talk('Unrestricted elements not found, trying restricted mode')
+                            restricted = True
+
                         #print something
                         self.talk('Following '+str(divnumber)+': ' +  followedname)
 
@@ -278,7 +304,7 @@ class Bot_Account(Instagram_Account):
                         if not (buttonvalue == 'Follow'):
                             continue
                         self.driver.click(followbtn)
-                        except_streak=0
+                        except_streak=0 #reset excepction streak
 
                         # Save stats to user object 
                         self.total_followed+=1
@@ -293,22 +319,29 @@ class Bot_Account(Instagram_Account):
                     self.wait(self.wait_after_click) #wait to perform another action
                     self.saveInstance()
                 except Exception as e:
+                    if config.debug_mode:
+                        self.talk(f'\nan exception was found:\n{e}\n')
                     self.scroll()
                     divnumber-=1
                     except_streak+=1
                     if except_streak>=3:
-                        return
+                        self.driver.close()
+                        return 100
                     
 
         elif action==3:# Unfollow automated followed
             #checks if user can perform actions
             if not self.check_avaliable():
-                return 2
+                self.driver.close()
+                return 200
             following_list = json.loads(self.following_list_json)
             for target in following_list:
                 if not self.check_avaliable():
-                    return
+                    self.driver.close()
+                    return 200
                 self.unfollow(target,following_list)
+            self.driver.close()
+            return 15
    
     def login(self):
         self.talk("Trying to login into " + self.username)
@@ -321,9 +354,7 @@ class Bot_Account(Instagram_Account):
             self.logins+=1
             self.saveInstance()
         else:
-            self.talk("Could not check login sucess, please check your credentials or disable 2FA")
             self.driver.close()
-            input('continue')
             return 100
         
     def checkText(self,text: str) -> bool:

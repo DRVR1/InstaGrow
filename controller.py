@@ -19,14 +19,32 @@ class Controller():
         '''
         user = self.add_load_bot(username,password)
         user.startDriver()
+
+        #login
         login_result = user.login()
+
         if login_result ==100:
-            return
+            self.talk("Could not check login sucess, please check your credentials or disable 2FA")
+        
+        if login_result:
+            input('continue')
+
+        #perform action
         act_result = user.act(option)
+
+
+
+        if(act_result==100):
+            self.talk('Elements not found, maybe the list is empty?')
         if(act_result==200):
             self.talk('Action limit per day reached. You can change this value in the account configuration (not recomended for new accounts).')
-            input('Continue?')
+        elif(act_result==15):
+            self.talk('Task finished. You have unfollowed everyone who were followed by this app.')
+        elif(act_result==404):
+            self.talk('Error locating elements, please wait for an update')
 
+        if act_result:
+            input('continue')
 
     def add_load_instagram_account(self,username,password=None)->Instagram_Account:
         '''Returns instagram account object.'''
@@ -109,12 +127,19 @@ class Controller():
             with open(script_path, "w") as file:
                 file.write(script)
                 file.close()
-                self.talk('Created.')
+                self.talk('Autostartup is now enabled.')
         except:
             print(f'Error writing the script path. AutoStartup was not enabled. \nPath: {script_path}')
             input('return')
-
-        pass
+    
+    def windows_remove_autostartup(self):
+        script_path = os.path.join(config.get_startup_folder(),config.AutoRun_Script_Name)
+        self.talk(f'Removing startup file...\nPath:{script_path}')
+        try:
+            os.remove(script_path)
+            self.talk('Autostartup is now disabled.')
+        except:
+            self.talk(f'Startup file was not found')
 
     '''Website functions (if you are coming from github, ignore the following code)'''
     def website_bot_follow(self):
