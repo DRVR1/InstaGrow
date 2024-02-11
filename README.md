@@ -9,9 +9,9 @@ Since this is a pre-alpha, some functions are not yet avaliable, such as user da
 ## Features:
 - Anti-ban precautions (Seleniumbase's undetected chromedriver + limited number of actions per day).
 - Mass follow / unfollow instagram accounts.
+- AutoStartup and automatic actions (no human intervention needed).
 
 ## Coming soon:
-- AutoStartup and automatic actions (no human intervention needed).
 - Unfollow people who do not follow you.
 - Gui (A full and user-friendly user interface to make it simpler to use).
 - Can be used with a proxy & handle multiple accounts (Concurrently)
