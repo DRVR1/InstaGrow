@@ -2,8 +2,17 @@ from classes import *
 import config
 from controller import Controller
 import os
+import sys
 
 controller = Controller()
+
+def get_input(prompt):
+    while True:
+        try:
+            op = abs(int(input(prompt)))
+            return op
+        except ValueError:
+            print("Invalid input. Please enter a valid integer.")
 
 def menu_delete_account(accname):
     controller.remove_bot(accname)
@@ -15,7 +24,7 @@ def menu_add_account():
     print("\nAdded.\n")
     menu_manage_accounts()
 
-def menu_manage_accounts(back_username:str=False):
+def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
     tupleList = [''] 
     print('\nSelect an account: \n')
     stuser=''
@@ -25,21 +34,25 @@ def menu_manage_accounts(back_username:str=False):
             for bot in controller.getBots():
                     username=bot.username
                     i+=1
-                    print(str(i) +'. @'+ username)
+                    scheduled = False
+                    if bot.scheduled_enabled:
+                        scheduled=True
+                    print(f'{str(i)}. scheduled:{str(scheduled)} username: @{username}')
                     tup = (i,username) 
                     tupleList.append(tup)
         except:
             print("Error reading users, try adding users first.")
             input("Continue")
             menu()
-        try:
-            op = int(input("\nOption: "))
-        except:
-            print('Option must be a number')
-            menu()
+        op = get_input('\nOption: ')
+
         if op==0:
             menu()
-        stuser = tupleList[op][1] #gather selected username from tuple list
+        try:
+            stuser = tupleList[op][1] #gather selected username from tuple list
+        except:
+            print('Invalid user.')
+            menu_manage_accounts()
     else:
         stuser=back_username
     os.system("cls")
@@ -69,7 +82,8 @@ def menu_manage_accounts(back_username:str=False):
     |-------|Actions|-------|
     9. Mass unfollow everyone, including your friends (if you have)  
     10. Mass follow (by target)
-    11. Mass unfollow (followed by using this app)\n
+    11. Mass unfollow (followed by using this app)
+    12. Configure automatic actions\n
     |-------|Configuration (Warning)|-------|
     99. Delete'''
     text9='    0. Back'
@@ -77,13 +91,11 @@ def menu_manage_accounts(back_username:str=False):
 
     print(text)
     print(text9)
-    try:
-        op = int(input("\nOption: "))
-    except:
-        print('Option must be a number')
-        menu()
-    
 
+    if back_username_op:
+        op = back_username_op
+    else:
+        op = get_input('\nOption: ')
 
     if op == 1:
         print("Note that this changes are NOT applied to your instagram account.")
@@ -93,23 +105,22 @@ def menu_manage_accounts(back_username:str=False):
         user.saveInstance()
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
-    if op==2:
+    elif op==2:
         print("Note that this changes are NOT applied to your instagram account.")
         op = str(input("\nNew password: "))
         user.password = op
         user.saveInstance()
         input("\nContinue?\n")
         menu_manage_accounts(back_username=user.username)
-    if op==3:
+    elif op==3:
         print('Username: ' + user.username)
         print('Logins: ' + str(user.logins))
-        print('Status: ' + str(user.status))
         print('Avaliable actions: ' + str(user.tokens))
         print('Total followed: ' + str(user.total_followed))
         print('Total unfollowed: ' + str(user.total_unfollowed))
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
-    if op == 4:
+    elif op == 4:
         following = json.loads(user.following_list_json)
         if not following:
             print("\nYou don't follow anyone with this app")
@@ -122,7 +133,7 @@ def menu_manage_accounts(back_username:str=False):
             print(str(i)+'. '+'@'  + acc)
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
-    if op == 5:        
+    elif op == 5:        
         text = '''\n
         1. Add target
         2. Remove target
@@ -130,7 +141,7 @@ def menu_manage_accounts(back_username:str=False):
         0. Back
         '''
         print(text)
-        op = int(input("Option: "))
+        op = get_input('\nOption: ')
         
         if(op == 1):
             tar = input("Enter target to add: @")
@@ -148,7 +159,7 @@ def menu_manage_accounts(back_username:str=False):
             for target in user_targets:
                 print(str(iterator) + '. @' + target)
                 asociacion.append((iterator,target))
-            selected = int(input('Selection: '))
+            selected = get_input('\nOption: ')
             target = asociacion[selected][1]
             user_targets.remove(target)
             user.targeting_list_json = json.dumps(user_targets)
@@ -171,9 +182,9 @@ def menu_manage_accounts(back_username:str=False):
 
         menu_manage_accounts(user.username)
 
-    if op==6:
+    elif op==6:
         print('Your daily limit is ' + str(user.actions_per_day) + ' and your currently avaliable actions are ' + str(user.tokens))
-        lim = int(input('Enter new limit (0 for cancel): '))
+        lim = get_input('Enter new limit (0 for cancel): ')
         if lim<=0:
             menu_manage_accounts(user.username)
         user.actions_per_day = lim
@@ -183,7 +194,7 @@ def menu_manage_accounts(back_username:str=False):
         input("Continue")
         menu_manage_accounts(user.username)
 
-    if op==7:
+    elif op==7:
         print('\nCurrent waiting time is: ' + str(user.wait_after_click) + ' seconds.')
         lim = float(input('Enter new time (0 for cancel): '))
         if lim<=0:
@@ -193,45 +204,107 @@ def menu_manage_accounts(back_username:str=False):
         input('waiting changed to ' + str(lim) + ' seconds. Continue?')
         menu_manage_accounts(user.username)
 
-    if op==8:
+    elif op==8:
         user.browser_visible = not user.browser_visible
         user.saveInstance()
         menu_manage_accounts(user.username)
 
-    if op == 9:#2 mass unfollow
+    elif op == 9:#2 mass unfollow
         controller.start(user.username, user.password, 1)
         menu_manage_accounts(user.username)
 
-    if op == 10: #Follow by target
+    elif op == 10: #Follow by target
         controller.start(user.username, user.password, 2)
         menu_manage_accounts(user.username)
 
-    if op == 11: #unfollow by followed in app
+    elif op == 11: #unfollow by followed in app
         controller.start(user.username, user.password, 3)
         menu_manage_accounts(user.username)
 
-    if op == 12: #configure automatic actions
-        #set an autostartup flag
-        #check for bots that have this flag
-        #read the bot configuration
-        #perform actions
-        #notify user
-        #confinue with another bot
-        pass
+    elif op == 12: #configure automatic actions
+        os.system('cls')
+        print('Automatic actions configuration.')
+        info=f'''
+Account info.
+    name: {user.username}
+    scheduled enabled: {str(user.scheduled_enabled)}
+    pending follows: {str(user.scheduled_follows)}
+    pending unfollows: {str(user.scheduled_unfollows)}
+    daily limit: {str(user.actions_per_day)}'''
+        print(info)
+        options=f'''
+Options:
+    1. Set total follows
+    2. Set total unfollows
+    3. Enable scheduled actions (the program will also run when you start windows)
+    4. Disable scheduled actions
+    5. Help
+    0. Back
+        '''
+        print(options)
+        op = get_input('Option: ')
+                
+        if(op==1):
+            n = get_input('Input how much people will be followed in total (example: 300): ')
+            user.scheduled_follows = n
+            user.saveInstance()
+            menu_manage_accounts(user.username,12)
+        elif op==2:
+            n = get_input('Input how much people will be unfollowed in total (example: 300): ')
+            user.scheduled_unfollows = n
+            user.saveInstance()
+            menu_manage_accounts(user.username,12)
+        elif op==3:
+            user.scheduled_enabled = True
+            controller.windows_create_autostartup()
+            user.saveInstance()
+            menu_manage_accounts(user.username,12)
+        elif op==4:
+            user.scheduled_enabled = False
+            user.saveInstance()
+            menu_manage_accounts(user.username,12)
+        elif op==5:
+            os.system('cls')
+            text=f'''
+When activating scheduled actions, this app will automatically start when you start Windows. Then it will perform the desired actions.
+For example, if you set the total follows to 400 and total unfollows to 200, the app will prioritize the follows. So, respecting the configured token limit (you can change it in settings, and by default is 200 every 24 hours), it will take 2 days to complete the follow requests (200 and 200) and one more day to complete the unfollow requests. Note that the program only starts unfollowing when all the follow requests are completed.
 
-    if op == 99:
-        op = int(input('\nThis will get the data of your account deleted from this program. \n\n1. Delete\n2. Cancel\nInput: '))
+For the following, there must be a target configured (the target is a user whose followers will be followed, so it's recommended to choose an account with a lot of followers. Also, check that the followers list is not restricted to the public).
+
+For the unfollowing, it just unfollows the people who have been followed by this app, excluding the rest.
+
+If you want to schedule the unfollow of everyone indiscriminately, you can turn on the scheduled_unfollows_everyone option in Automatic actions configuration.
+            '''
+            print(text)
+            input('Continue')
+            menu_manage_accounts(user.username,12)
+        else:
+            menu_manage_accounts(user.username)
+
+    elif op == 99:
+        op = get_input('\nThis will get the data of your account deleted from this program. \n\n1. Delete\n2. Cancel\nInput: ')
         if op==1:
             controller.remove_bot(user.username)
             menu()
         else:
             menu_manage_accounts(user.username)
 
-    if op == 0:
+    else:
         menu_manage_accounts()
 
+firstTime = True
 def menu():
-    os.system('cls')
+    global firstTime
+    if firstTime:
+        os.system('cls')
+        firstTime=False
+    if len(sys.argv)>1:
+        print(f'Parameter: {str(sys.argv[1])}')
+        while(True):
+            result = controller.autoStart()
+            if(result==404):
+                print('Autostart enabled. Waiting for user configuration.')
+            sleep(3)
     if config.debug_mode:
         print(f'Startup folder: {config.get_startup_folder()}')
         print(f'Executing from: {config.get_running_path()}')
@@ -242,14 +315,13 @@ def menu():
     text='''          
     1. Add account
     2. Manage accounts
+    3. Enable autostartup
+    4. Disable autostartup
     0. Exit'''
     print(text)
+    op=0
 
-    try:
-        op = int(input("\nOption: "))
-    except:
-        print('Option must be a number')
-        menu()
+    op = get_input('\nOption: ')
 
     if (op == 1):
         menu_add_account()
@@ -264,6 +336,7 @@ def menu():
         input('continue')
         menu()
     if (op ==0):
-        return
+        exit()
 
 menu()
+

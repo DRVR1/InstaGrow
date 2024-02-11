@@ -2,15 +2,14 @@ import config
 from seleniumbase import SB
 from time import sleep
 import datetime
-from datetime import timedelta
-import pytest
 from classes import *
 import json
+import os
 
 class Controller():
     def __init__(self,*args,**kwargs) -> None:
         pass
-    def start(self,username,password,option=0):
+    def start(self,username,password,option=0,forced:bool=False):
         '''
         (start is the user controller)
         1. mass unfollow
@@ -25,46 +24,43 @@ class Controller():
 
         if login_result ==100:
             self.talk("Could not check login sucess, please check your credentials or disable 2FA")
-        
-        if login_result:
-            input('continue')
 
-        #perform action
-        act_result = user.act(option)
-
-
+        #perform actions until run out of tokens
+        act_result = user.act(option,forced=forced)
 
         if(act_result==100):
             self.talk('Elements not found, maybe the list is empty?')
-        if(act_result==200):
+        elif(act_result==200):
             self.talk('Action limit per day reached. You can change this value in the account configuration (not recomended for new accounts).')
         elif(act_result==15):
             self.talk('Task finished. You have unfollowed everyone who were followed by this app.')
+        elif(act_result==300):
+            self.talk('Reached the target scheduled tasks.')
         elif(act_result==404):
             self.talk('Error locating elements, please wait for an update')
 
-        if act_result:
-            input('continue')
+        
+    def autoStart(self):
+        enabled_bots = session.query(Bot_Account).filter(Bot_Account.scheduled_enabled == True).all()
+        if not enabled_bots:
+            return 404
+        for b in enabled_bots:
+            print(f'enabled bot: {b.username} sch_follows: {str(b.scheduled_follows)} sch_unfollows: {str(b.scheduled_unfollows)}')
+            if b.scheduled_follows:
+                self.start(b.username,b.password,2,forced=True)
+            elif b.scheduled_unfollows:
+                self.start(b.username,b.password,3,forced=True)
+            else: 
+                #notify user
+                b.scheduled_enabled=False
+                b.saveInstance()
 
-    def add_load_instagram_account(self,username,password=None)->Instagram_Account:
-        '''Returns instagram account object.'''
-        instagram_acc=session.query(Instagram_Account).filter_by(username=username).first()
-        if instagram_acc == None:
-            instagram_acc = Instagram_Account(
-                #account info
-                username=username,
-                password=password,
-                logins=0,
-                last_login = None,
-                credits=0,
-                nickname='',
-                restore=0,
-                isbroken=False
-            )
-            session.add(instagram_acc)
-            session.commit()
-        return instagram_acc
-    
+    def enable_autoStart(self,username:str)->bool:
+        bot = self.add_load_bot(username)
+        if not bot:
+            return False
+        bot.scheduled_enabled = True
+        bot.saveInstance()
 
     def add_load_bot(self,username,password=None)->'Bot_Account':
         '''Returns user object.'''
@@ -79,24 +75,22 @@ class Controller():
                 password=password,
                 logins=0,
                 last_login = None,
-                credits=0,
-                nickname='',
-                restore=0,
-                isbroken=False,
                 #bot info
                 tokens=200,
-                status='Resting',
                 waitUntil=datetime.datetime.now(),
-                isbot=True,
                 avaliable=True,
                 total_followed=0,
                 total_unfollowed=0,
                 following_list_json=json.dumps(list),
-                targeting_list_json=json.dumps(list),
+                targeting_list_json = json.dumps(list),
                 actions_per_day=200,
                 actions_rest_time=3600*24,
                 wait_after_click = 0.5,
-                browser_visible=True
+                browser_visible=True,
+                scheduled_enabled=False,
+                scheduled_follows=0,
+                scheduled_unfollows=0,
+                scheduled_unfollows_everyone= False
             )
             session.add(user)
             session.commit()
@@ -110,17 +104,20 @@ class Controller():
         else:
             self.talk('User ' + username + ' doesn\'t exist')
 
-    def getBots(self) -> list:
+    def getBots(self) -> list['Bot_Account']:
         '''Return object list'''
         return session.query(Bot_Account).all()
 
     def talk(self,words:str):
-        print('Controller: ' + words)
+        if(config.debug_mode):
+            print('Controller: ' + words)
+        else:
+            print('Controller (debug mode): ' + words)
 
     def windows_create_autostartup(self):
         '''Creates an autostartup batch file in the windows startup folder.'''
         
-        script=f"start /min \"\" \"{config.get_running_path()}\""
+        script=f"start /min \"\" \"{config.get_running_path()}\" auto"
         script_path = os.path.join(config.get_startup_folder(),config.AutoRun_Script_Name)
         self.talk(f'Creating startup file...\nPath:{script_path}')
         try:
@@ -141,122 +138,3 @@ class Controller():
         except:
             self.talk(f'Startup file was not found')
 
-    '''Website functions (if you are coming from github, ignore the following code)'''
-    def website_bot_follow(self):
-        '''
-        Due to pytest nature, the controller cannot manage user() behavior completely. Thats why the bot user() 
-        will be doing some controller actions like checking lists, time, etc.
-        '''
-        #pytest --uc -s --proxy=brd-customer-hl_########-zone-residential:############@brd.superproxy.io:##### --locale=us --var1=target bot.py
-        pytest_args = [ #pytest -k testname (without "test_") code.py
-            "-n=2", #hilos
-            "--uc",#undetected
-            "-s", #permite print-talk
-            "--locale=us",
-            "--var1=None",
-            "--k=website_bot_follow",
-            "bot.py" #archivo
-        ]
-        pytest.main(pytest_args)
-
-    def website_restore_targeting(self):
-        users = session.query(Instagram_Account).filter(Instagram_Account.restore>0).filter_by(isbroken=False).all()
-        if not users:
-            return
-        for user in users:
-            av_bots = self.website_get_avaliable_bots(user.username)
-            self.website_set_bots_target(user,av_bots,user.restore,restoring=True)
-    
-    def website_set_bots_target(self,instagram_acc:Instagram_Account,botlist:list,amount:int,restoring:bool=False)->None:
-        '''
-        instagram_acc: objeto cuenta de instagram
-        botlist: una lista de objetos bot (obtener de website_get_avaliable_bots() para que sean activos)
-        amount: cantidad de bots a asignar 
-        '''
-        b = botlist
-        bot_size_tuples = [(bot, len(bot.targeting)) for bot in b]
-        sorted_bots = sorted(bot_size_tuples, key=lambda x: x[1]) #buscar bots con menor carga
-        for bot,val in sorted_bots[:amount]: #cortar la lista segun los bots requeridos
-            if(instagram_acc.username==bot.username):
-                continue
-            bot.targeting.append(instagram_acc)
-            if restoring:
-                instagram_acc.restore-=1
-            #guardar datos del bot
-            session.commit()
-
-    def website_get_avaliable_bots(self,target:str=None)->list:
-        '''
-        -Returns avaliable bots for following target (excluding broken, targeting and following)
-        -Returns all online bots if no target is specified.
-        -Removes targets from broken bots
-        '''
-        result_bots = []
-        bots = self.getBots()
-        for bot in bots:
-            uname = bot.username
-            b = session.query(Bot_Account).filter_by(username=uname).first()
-            if b.isbot and not b.isbroken:
-                if target:
-                    following = [client.username for client in b.following]
-                    targeting = [client.username for client in b.targeting]
-                    if not target in following and not target in targeting:
-                        if b.username != target:
-                            result_bots.append(b)
-                else:
-                    result_bots.append(b)
-            else:
-                continue
-        return result_bots
-
-    def website_buy_followers(self,instagram_acc:Instagram_Account,amount:int)->str:
-        '''
-        -Chequea si la cuenta cumple los requisitos (tener bots disponibles para el)
-        -Asigna target al bot
-        -Agrega los creditos
-        -Guarda los nuevos datos
-        '''
-
-        #chequear cantidad solicitada
-        if amount <= 0:
-            error = 'Requested credit is less than 1'
-            self.talk(error)
-            return error          
-        
-        #chequear existencia de cliente
-        if not instagram_acc:
-            error = 'Client doesn\'t exist.'
-            self.talk(error)
-            return error
-        
-        #longitud de lista de objetos bots obtenida de avaliable bots
-        avaliable_bots_obj = self.website_get_avaliable_bots(instagram_acc.username)
-        avaliable_bots = len(avaliable_bots_obj)
-
-        #chequear si alcanzan los bots para la compra
-        if (avaliable_bots < amount):
-            error = 'Not enough bots to do the job for your account.'
-            self.talk(error)
-            return error
-
-        #asignar target a los bots
-        self.website_set_bots_target(instagram_acc,avaliable_bots_obj,amount)
-
-        #darle los creditos al cliente
-        instagram_acc.credits +=amount
-
-        #guardar datos del usuario
-        session.commit()
-        
-    
-    def debug_load_bots_from_file(self,path:str)->None:
-        with open(path,'r') as file:
-            diccionario = dict()
-            for line in file:
-                key, value = line.strip().split(':', 1)  # Split into key and value using the first occurrence of ": "
-                diccionario[key] = value
-            file.close()
-        
-        for username,password in diccionario.items():
-            self.add_load_bot(username,password)
-            self.add_load_instagram_account(username,password)

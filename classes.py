@@ -2,13 +2,11 @@ from time import sleep
 import random
 import datetime
 from datetime import timedelta
-import os
 from seleniumbase import Driver
 from seleniumbase.fixtures import xpath_to_css
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey,Table,Column, DateTime, Integer,Boolean, insert
-from sqlalchemy.orm import sessionmaker, relationship,scoped_session
+from sqlalchemy import create_engine, Column, Integer, String, Float,Column, DateTime, Integer,Boolean
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 import config
 import json
@@ -18,28 +16,6 @@ instaUrl = config.userUrl
 
 Base = declarative_base()
 
-Following = Table(
-                    'bot_following_account',
-                    Base.metadata,
-                    Column('bot_id',Integer),
-                    Column('followed_id',Integer)
-                )
-
-Targeting = Table(
-                    'bot_targeting_account',
-                    Base.metadata,
-                    Column('bot_id',Integer),
-                    Column('targeted_id',Integer)
-                )
-
-
-class Receipt(Base):
-    __tablename__ = 'receipts'
-    id = Column(Integer, primary_key=True)
-    price = Column(Float)
-    creation_date = Column(DateTime)
-    account_id = Column(Integer, ForeignKey('accounts.id'))
-
 class Account(Base):
     __tablename__='accounts'
     id = Column(Integer, primary_key=True)
@@ -48,47 +24,23 @@ class Account(Base):
     logins = Column(Integer)
     last_login = Column(DateTime)
 
+class Bot_Account(Account):
+    tokens = Column(Integer)#remaining actions in the defined time interval. 
+    waitUntil = Column(DateTime)#The date when the tokens will be restored to actions_per_day value and 'avaliable' will be set to true
+    avaliable = Column(Boolean)#defines if the bot is waiting that time interval.
+    total_followed = Column(Integer)#stats
+    total_unfollowed = Column(Integer)#stats
+    following_list_json = Column(String)#a list of the people the user is following with this app
+    targeting_list_json = Column(String)#a list of the people whose followers will be followed
+    actions_per_day=Column(Integer) #how much actions per time interval are allowed
+    actions_rest_time=Column(Integer)#wait time interval since you run out of tokens
+    wait_after_click = Column(Float)#how much time the bot waits after clicking a button
+    browser_visible=Column(Boolean)#sets browser visibility (headed/headless)
+    scheduled_enabled = Column(Boolean)#sets automatic actions flag (act when the program starts)
+    scheduled_follows = Column(Integer)#sets the total number of account that must be followed
+    scheduled_unfollows = Column(Integer)#sets the total number of account that must be unfollowed
+    scheduled_unfollows_everyone = Column(Boolean)#a bool that defines wether the scheduled unfollow should look at the following_list_json, or just unfollow everyone
 
-
-class Instagram_Account(Account):
-    credits = Column(Integer)
-    nickname = Column(String)
-    restore = Column(Integer)
-    isbroken = Column(Boolean)  
-    receipts = relationship('Receipt', backref='client') 
-
-    
-class Bot_Account(Instagram_Account):
-    tokens = Column(Integer)
-    status = Column(String)
-    waitUntil = Column(DateTime)
-    isbot = Column(Boolean)  
-    avaliable = Column(Boolean)
-    total_followed = Column(Integer)
-    total_unfollowed = Column(Integer)
-    following_list_json = Column(String)
-    targeting_list_json = Column(String)
-    actions_per_day=Column(Integer)
-    actions_rest_time=Column(Integer)
-    wait_after_click = Column(Float)
-    browser_visible=Column(Boolean)
-
-    targeting = relationship(
-        'Instagram_Account',
-        secondary=Targeting,
-        primaryjoin=(Targeting.c.bot_id == Account.id),
-        secondaryjoin=(Targeting.c.targeted_id  == Account.id),
-        backref='targeted_by'
-    )
-
-    following = relationship(
-        'Instagram_Account',
-        secondary=Following,
-        primaryjoin=(Following.c.bot_id == Account.id),
-        secondaryjoin=(Following.c.followed_id  == Account.id),
-        backref='followed_by'
-    )
-    
     def saveInstance(self):
         session.commit()
 
@@ -112,7 +64,11 @@ class Bot_Account(Instagram_Account):
         pass
 
     def talk(self,words):
-        print("("+self.username+"): " + words)
+        if(config.debug_mode):
+            print("("+self.username+")(debug mode): " + words)
+        else:
+            print("("+self.username+"): " + words)
+        
         
     def goto(self,url):
         self.driver.open(url)
@@ -213,12 +169,14 @@ class Bot_Account(Instagram_Account):
         self.saveInstance()
     
 
-    def act(self,action: int):
+    def act(self,action: int,forced:bool=False)->int:
         '''
         actions:
             1. Mass unfollow everyone
             2. Follow Followers of target (select random target from list) (configure from menu first)
             3. Unfollow followed by this app
+
+            if forced, it means the bot was started with no human intervention.
         '''
         if action==1 or action==2: 
             if action==1: # go to self following list
@@ -250,6 +208,10 @@ class Bot_Account(Instagram_Account):
                 try:
                     divnumber+=1
                     if action==1: #unfollow self following
+                        if forced:
+                            if self.scheduled_unfollows<=0:
+                                self.driver.close()
+                                return 300
                         #get buttons and button data
                         username = config.xpath_following_username(str(divnumber))
                         followbtn = config.xpath_following_FollowUnfolowButton(str(divnumber))
@@ -265,6 +227,8 @@ class Bot_Account(Instagram_Account):
 
                         # Save stats to user object 
                         self.total_unfollowed+=1
+                        if forced:
+                            self.scheduled_unfollows-=1
                         try:
                             following_list = json.loads(self.following_list_json)
                             following_list.remove(followedname)
@@ -273,7 +237,10 @@ class Bot_Account(Instagram_Account):
                             pass
 
                     if action==2:#follow target's followers
-
+                        if forced:
+                            if self.scheduled_follows<=0:
+                                self.driver.close()
+                                return 300
                         #get buttons and button data
                         username = config.xpath_followers_username_unrestricted(str(divnumber))
                         followbtn = config.xpath_followers_FollowUnfolowButton_unrestricted(str(divnumber))
@@ -307,6 +274,8 @@ class Bot_Account(Instagram_Account):
                         except_streak=0 #reset excepction streak
 
                         # Save stats to user object 
+                        if forced:
+                            self.scheduled_follows-=1
                         self.total_followed+=1
                         following_list = json.loads(self.following_list_json)
                         if followedname not in following_list:
@@ -331,15 +300,19 @@ class Bot_Account(Instagram_Account):
 
         elif action==3:# Unfollow automated followed
             #checks if user can perform actions
-            if not self.check_avaliable():
-                self.driver.close()
-                return 200
             following_list = json.loads(self.following_list_json)
             for target in following_list:
                 if not self.check_avaliable():
                     self.driver.close()
                     return 200
+                if forced:
+                    if self.scheduled_unfollows<=0:
+                        self.driver.close()
+                        return 300
                 self.unfollow(target,following_list)
+                if forced:
+                    self.scheduled_unfollows-=1
+                    self.saveInstance()
             self.driver.close()
             return 15
    

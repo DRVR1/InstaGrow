@@ -6,21 +6,13 @@
 import os
 import sys
 
-debug_mode = False
+debug_mode = True
 
 #===============|String Values|================:
 AppName = 'InstaGrow'
 AppVersion = 'pre-alpha'
 AutoRun_Script_Name = 'InstaGrow.bat'
 
-stat_value_status = ['following','unfollowing','resting']
-'''0) following
-   1) unfollowing
-   2) resting'''
-stat_key_followed = 'followed'
-stat_key_unfollowed = 'unfollowed'
-stat_key_logins = 'logins'
-stat_key_count = 'count'
 #===============|Url's|================:
 loginurl = 'https://www.instagram.com/accounts/login/'
 userUrl = "https://www.instagram.com/" # + username/
