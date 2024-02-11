@@ -12,6 +12,9 @@ Since this is a pre-alpha, some functions are not yet avaliable, such as user da
 - AutoStartup and automatic actions (no human intervention needed).
 
 ## Coming soon:
+- Password-Protected database
+- Save logs
+- Use of cookies and cache
 - Unfollow people who do not follow you.
 - Gui (A full and user-friendly user interface to make it simpler to use).
 - Can be used with a proxy & handle multiple accounts (Concurrently)
