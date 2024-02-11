@@ -186,9 +186,10 @@ class Bot_Account(Account):
                     targets_list=json.loads(self.targeting_list_json)
                     target = targets_list[random.randint(0, len(targets_list)-1)]
                 except:
+                    self.driver.close()
                     self.talk("No target was selected. Please configure a target to follow its followers. For example: if the target is the account @elonmusk, then his followers will be automatically followed.")
                     input("Continue")
-                    return 1
+                    return
                 self.goto(instaUrl+target)
 
                 button_following_xpath = '/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/ul/li[2]/a'

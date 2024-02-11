@@ -109,7 +109,7 @@ class Controller():
         return session.query(Bot_Account).all()
 
     def talk(self,words:str):
-        if(config.debug_mode):
+        if not (config.debug_mode):
             print('Controller: ' + words)
         else:
             print('Controller (debug mode): ' + words)

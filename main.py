@@ -56,7 +56,6 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
     else:
         stuser=back_username
     os.system("cls")
-    print('Selected user: ' + stuser)   
     user = controller.add_load_bot(stuser) 
     if not user:
         print('error')
@@ -69,21 +68,21 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
 
     text=f'''          
     |-------|Account Data|-------|
-    1. Change username
+    1. Change username ({user.username})
     2. Change password\n
     |-------|Statistics|-------|
     3. View stats
-    4. View following\n
+    4. View following ({str(len(json.loads(user.following_list_json)))})\n
     |-------|Configuration|-------|
-    5. Configure targets (for mass follow)
-    6. Change daily limit (dangerous)
-    7. Change wait time after clicking buttons
+    5. Configure targets ({str(len(json.loads(user.targeting_list_json)))} targets configured).
+    6. Change daily limit (current: {str(user.actions_per_day)}) [recomended: 200]
+    7. Change wait time after clicking buttons ({str(user.wait_after_click)}s)
     8. Toggle browser visibility: [{bv}]\n
     |-------|Actions|-------|
-    9. Mass unfollow everyone, including your friends (if you have)  
+    9. Mass unfollow everyone, including your friends  
     10. Mass follow (by target)
     11. Mass unfollow (followed by using this app)
-    12. Configure automatic actions\n
+    12. Configure automatic actions [{str(user.scheduled_enabled)}]\n
     |-------|Configuration (Warning)|-------|
     99. Delete'''
     text9='    0. Back'
@@ -134,12 +133,11 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
     elif op == 5:        
-        text = '''\n
+        text = '''
         1. Add target
         2. Remove target
         3. Display targets
-        0. Back
-        '''
+        0. Back'''
         print(text)
         op = get_input('\nOption: ')
         
@@ -151,31 +149,38 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
             user.saveInstance()
             print("Added " + tar + " to targets.")
             input("Continue")
+            menu_manage_accounts(user.username,5)
         if(op == 2):
             print('Select wich target to remove:')
             user_targets = json.loads(user.targeting_list_json)
-            iterator=0
+            if not user_targets:
+                print('You have no targets selected.')
+                input('Continue')
+                menu_manage_accounts(user.username,5)
+            iterator=1
             asociacion=[]
             for target in user_targets:
                 print(str(iterator) + '. @' + target)
                 asociacion.append((iterator,target))
+                iterator+=1
             selected = get_input('\nOption: ')
+            selected-=1
             target = asociacion[selected][1]
             user_targets.remove(target)
             user.targeting_list_json = json.dumps(user_targets)
             user.saveInstance()
             print("Removed " + target + " from targets.")
             input("Continue")
+            menu_manage_accounts(user.username,5)
         if(op == 3):
-            print("Target list: ")
+            print("\nTarget list:\n")
             targets_list=json.loads(user.targeting_list_json)
-            print('\n')
             i=0
             for target in targets_list:
                 i+=1
                 print(str(i)+'. @'+target)
-                print('\n')
-            input("All targets listed. Continue?")
+            input("\nAll targets listed. Continue?")
+            menu_manage_accounts(user.username,5)
         if(op ==0):
             menu_manage_accounts(user.username)
         user.saveInstance()
@@ -245,6 +250,7 @@ Options:
         op = get_input('Option: ')
                 
         if(op==1):
+            print('Remember, you need to set at least one target account, for more info select option 5 (help)\n')
             n = get_input('Input how much people will be followed in total (example: 300): ')
             user.scheduled_follows = n
             user.saveInstance()
