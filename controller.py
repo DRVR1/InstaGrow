@@ -25,6 +25,9 @@ class Controller():
         if login_result ==100:
             self.talk("Could not check login sucess, please check your credentials or disable 2FA")
 
+        if config.debug_mode:
+            if login_result:
+                input('continue')
         #perform actions until run out of tokens
         act_result = user.act(option,forced=forced)
 
@@ -38,6 +41,10 @@ class Controller():
             self.talk('Reached the target scheduled tasks.')
         elif(act_result==404):
             self.talk('Error locating elements, please wait for an update')
+
+        if config.debug_mode:
+            if act_result:
+                input('continue')
 
         
     def autoStart(self):

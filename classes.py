@@ -76,7 +76,7 @@ class Bot_Account(Account):
 
     def scroll(self):
         '''Scroll followers window (instagram.com/user/followers)'''
-        scrollby = '230'
+        scrollby = '2000'
         self.driver.execute_script(f'''window.scrollBy(0,{scrollby})''')
         self.talk("Scrolled " + scrollby + 'px.')
 
@@ -251,6 +251,11 @@ class Bot_Account(Account):
 
                         followedname=''
                         buttonvalue=''
+
+                        followedname = self.driver.get_text(username)
+                        buttonvalue = self.driver.get_text(followbtn)
+
+                        '''
                         try:
                             if restricted:
                                 username = config.xpath_followers_username_restricted(str(divnumber))
@@ -264,14 +269,17 @@ class Bot_Account(Account):
                             if(config.debug_mode):
                                 self.talk('Unrestricted elements not found, trying restricted mode')
                             restricted = True
+                        '''
 
-                        #print something
-                        self.talk('Following '+str(divnumber)+': ' +  followedname)
 
                         #perform action (follow)
-                        if not (buttonvalue == 'Follow'):
+                        if (buttonvalue == 'Following' or buttonvalue == 'Requested'):
+                            self.talk('Skipping '+str(divnumber)+': ' +  followedname)
+                            except_streak=0 #just scrolling
                             continue
+
                         self.driver.click(followbtn)
+                        self.talk('Followed '+str(divnumber)+': ' +  followedname)
                         except_streak=0 #reset excepction streak
 
                         # Save stats to user object 
