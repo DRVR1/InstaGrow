@@ -56,13 +56,10 @@ Warning: This will unfollow everyone, which may include friends or relevant acco
 - Mass Follow (by Target)<br>
 Randomly selects an user from the target list (this list must be configured first) and then mass follows its followers.<br><br>
 - Mass Unfollow (Followed by Using This App)<br>
-Only unfollows those who were followed using this app.
+Only unfollows those who were followed using this app.<br><br>
 - Configure automatic actions<br>
 When activating scheduled actions, this app will automatically start when you start Windows. Then it will perform the desired actions.
-For example, if you set the total follows to 400 and total unfollows to 200, the app will prioritize the follows. So, respecting the configured token limit (you can change it in settings, and by default is 200 every 24 hours), it will take 2 days to complete the follow requests (200 and 200) and one more day to complete the unfollow requests. Note that the program only starts unfollowing when all the follow requests are completed.
-
-For the following, there must be a target configured (the target is a user whose followers will be followed, so it's recommended to choose an account with a lot of followers. Also, check that the followers list is not partially limited, since this will generate errors).
-
+For example, if you set the total follows to 400 and total unfollows to 200, the app will prioritize the follows.<br> So, respecting the configured token limit (you can change it in settings, and by default is 200 every 24 hours), it will take 2 days to complete the follow requests (200 and 200) and one more day to complete the unfollow requests. Note that the program only starts unfollowing when all the follow requests are completed.<br>
+For the following, there must be a target configured (the target is a user whose followers will be followed, so it's recommended to choose an account with a lot of followers. Also, check that the followers list is not partially limited, since this will generate errors).<br>
 For the unfollowing, it just unfollows the people who have been followed by this app, excluding the rest.
-
 If you want to schedule the unfollow of everyone indiscriminately, you can turn on the scheduled_unfollows_everyone option in Automatic actions configuration.
