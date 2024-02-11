@@ -52,7 +52,8 @@ class Controller():
         if not enabled_bots:
             return 404
         for b in enabled_bots:
-            print(f'enabled bot: {b.username} sch_follows: {str(b.scheduled_follows)} sch_unfollows: {str(b.scheduled_unfollows)}')
+            print(f'enabled bot: {b.username} scheduled follows: {str(b.scheduled_follows)} scheduled unfollows: {str(b.scheduled_unfollows)}')
+            print(f'Remaining actions: {str(b.tokens)}')
             if b.scheduled_follows:
                 self.start(b.username,b.password,2,forced=True)
             elif b.scheduled_unfollows:

@@ -114,7 +114,7 @@ class Bot_Account(Account):
         if unfollowed:
             self.tokens-=1
             self.wait(1,'Unfollowing')
-            self.talk('Unfollowed ' + target)
+            self.talk(f'Remaining actions: {str(self.tokens)}, unfollowed {target}')
         try:
             following_list.remove(target)
         except:

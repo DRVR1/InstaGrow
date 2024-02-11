@@ -95,6 +95,7 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
         op = back_username_op
     else:
         op = get_input('\nOption: ')
+    os.system('cls')    
 
     if op == 1:
         print("Note that this changes are NOT applied to your instagram account.")
@@ -133,13 +134,15 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
     elif op == 5:        
-        text = '''
+        text = '''A target account is an instagram account whose followers will be followed. If you have more than one target, they will be selected randomly.
+        
         1. Add target
         2. Remove target
         3. Display targets
         0. Back'''
         print(text)
         op = get_input('\nOption: ')
+        os.system('cls')
         
         if(op == 1):
             tar = input("Enter target to add: @")
@@ -164,6 +167,8 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
                 asociacion.append((iterator,target))
                 iterator+=1
             selected = get_input('\nOption: ')
+            if selected==0:
+                menu_manage_accounts(user.username,5)
             selected-=1
             target = asociacion[selected][1]
             user_targets.remove(target)
@@ -227,7 +232,6 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
         menu_manage_accounts(user.username)
 
     elif op == 12: #configure automatic actions
-        os.system('cls')
         print('Automatic actions configuration.')
         info=f'''
 Account info.
@@ -254,6 +258,11 @@ Options:
             n = get_input('Input how much people will be followed in total (example: 300): ')
             user.scheduled_follows = n
             user.saveInstance()
+            target_list = json.loads(user.targeting_list_json)
+            if (len(target_list) <= 0 ):
+                os.system('cls')
+                print('WARNING. No targets selected, you need to set at least one target account. For more info select option 5 (help)')
+                input('Continue')
             menu_manage_accounts(user.username,12)
         elif op==2:
             n = get_input('Input how much people will be unfollowed in total (example: 300): ')
@@ -300,10 +309,7 @@ If you want to schedule the unfollow of everyone indiscriminately, you can turn 
 
 firstTime = True
 def menu():
-    global firstTime
-    if firstTime:
-        os.system('cls')
-        firstTime=False
+    os.system('cls')
     if len(sys.argv)>1:
         print(f'Parameter: {str(sys.argv[1])}')
         while(True):
@@ -328,7 +334,8 @@ def menu():
     op=0
 
     op = get_input('\nOption: ')
-
+    os.system('cls')
+    
     if (op == 1):
         menu_add_account()
     if (op == 2):
