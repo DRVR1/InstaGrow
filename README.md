@@ -63,3 +63,6 @@ For example, if you set the total follows to 400 and total unfollows to 200, the
 For the following, there must be a target configured (the target is a user whose followers will be followed, so it's recommended to choose an account with a lot of followers. Also, check that the followers list is not partially limited, since this will generate errors).<br>
 For the unfollowing, it just unfollows the people who have been followed by this app, excluding the rest.
 If you want to schedule the unfollow of everyone indiscriminately, you can turn on the scheduled_unfollows_everyone option in Automatic actions configuration.
+
+
+![alt text](https://i.imgur.com/bWev0kN.png)
