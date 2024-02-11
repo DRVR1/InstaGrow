@@ -12,6 +12,7 @@ debug_mode = False
 AppName = 'InstaGrow'
 AppVersion = 'pre-alpha'
 AutoRun_Script_Name = 'InstaGrow.bat'
+icon_path = "icon.ico"
 
 #===============|Url's|================:
 loginurl = 'https://www.instagram.com/accounts/login/'

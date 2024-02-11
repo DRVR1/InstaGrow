@@ -255,23 +255,6 @@ class Bot_Account(Account):
                         followedname = self.driver.get_text(username)
                         buttonvalue = self.driver.get_text(followbtn)
 
-                        '''
-                        try:
-                            if restricted:
-                                username = config.xpath_followers_username_restricted(str(divnumber))
-                                followbtn = config.xpath_followers_FollowUnfolowButton_restricted(str(divnumber))
-                            followedname = self.driver.get_text(username)
-                            buttonvalue = self.driver.get_text(followbtn)
-                        except:
-                            if restricted == True:
-                                self.driver.close()
-                                return 100
-                            if(config.debug_mode):
-                                self.talk('Unrestricted elements not found, trying restricted mode')
-                            restricted = True
-                        '''
-
-
                         #perform action (follow)
                         if (buttonvalue == 'Following' or buttonvalue == 'Requested'):
                             self.talk('Skipping '+str(divnumber)+': ' +  followedname)

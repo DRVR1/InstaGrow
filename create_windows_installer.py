@@ -77,7 +77,7 @@ def pyInstaller():
     print('Installing requirements...')
     os.system('pip install -r requirements.txt')
     print('Exporting .exe file')
-    os.system(f"pyinstaller --noconfirm --onefile --console --clean --name {appName} --distpath {folder_resources} \"main.py\"")
+    os.system(f"pyinstaller --noconfirm --onefile --console --clean --icon={config.icon_path} --name {appName} --distpath {folder_resources} \"main.py\"")
 
     try:
         for folder in foldersToDelete:
