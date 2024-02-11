@@ -109,7 +109,7 @@ UninstallDisplayName={config.AppName} ({config.AppVersion})
 
 [Files]
 Source: "{config.AppName}.exe"; DestDir: "{{app}}\{config.AppName}"
-Source: "{icon_name}"; DestDir: "{{app}}/{config.AppName}"
+Source: "{icon_name}"; DestDir: "{{app}}"
 
 [Icons]
 Name: "{{group}}\\{config.AppName}"; Filename: "{{app}}\\{config.AppName}\\{config.AppName}.exe"

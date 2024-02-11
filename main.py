@@ -275,7 +275,7 @@ Options:
 When activating scheduled actions, this app will automatically start when you start Windows. Then it will perform the desired actions.
 For example, if you set the total follows to 400 and total unfollows to 200, the app will prioritize the follows. So, respecting the configured token limit (you can change it in settings, and by default is 200 every 24 hours), it will take 2 days to complete the follow requests (200 and 200) and one more day to complete the unfollow requests. Note that the program only starts unfollowing when all the follow requests are completed.
 
-For the following, there must be a target configured (the target is a user whose followers will be followed, so it's recommended to choose an account with a lot of followers. Also, check that the followers list is not restricted to the public).
+For the following, there must be a target configured (the target is a user whose followers will be followed, so it's recommended to choose an account with a lot of followers. Also, check that the followers list is not partially limited, since this will generate errors).
 
 For the unfollowing, it just unfollows the people who have been followed by this app, excluding the rest.
 
