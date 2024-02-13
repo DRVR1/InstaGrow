@@ -113,11 +113,8 @@ def menu_manage_accounts(back_username:str=False,back_username_op:int=False):
         input("\nContinue?\n")
         menu_manage_accounts(back_username=user.username)
     elif op==3:
-        print('Username: ' + user.username)
-        print('Logins: ' + str(user.logins))
-        print('Avaliable actions: ' + str(user.tokens))
-        print('Total followed: ' + str(user.total_followed))
-        print('Total unfollowed: ' + str(user.total_unfollowed))
+        info = controller.get_bot_info(user)
+        print(info)
         input("\nContinue?\n")
         menu_manage_accounts(user.username)
     elif op == 4:
@@ -239,7 +236,8 @@ Account info.
     scheduled enabled: {str(user.scheduled_enabled)}
     pending follows: {str(user.scheduled_follows)}
     pending unfollows: {str(user.scheduled_unfollows)}
-    daily limit: {str(user.actions_per_day)}'''
+    daily limit: {str(user.actions_per_day)}
+    remaining tokens: {str(user.tokens)}'''
         print(info)
         options=f'''
 Options:

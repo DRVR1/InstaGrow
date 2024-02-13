@@ -176,7 +176,7 @@ class Bot_Account(Account):
             2. Follow Followers of target (select random target from list) (configure from menu first)
             3. Unfollow followed by this app
 
-            if forced, it means the bot was started with no human intervention.
+            if forced, it means the bot was started via scheduler
         '''
         if action==1 or action==2: 
             if action==1: # go to self following list

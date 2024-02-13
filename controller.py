@@ -15,6 +15,8 @@ class Controller():
         1. mass unfollow
         2. Always Follow (by target)
         3. Unfollow by app
+
+        if forced, it means the bot was started via scheduler
         '''
         user = self.add_load_bot(username,password)
         user.startDriver()
@@ -52,8 +54,7 @@ class Controller():
         if not enabled_bots:
             return 404
         for b in enabled_bots:
-            print(f'enabled bot: {b.username} scheduled follows: {str(b.scheduled_follows)} scheduled unfollows: {str(b.scheduled_unfollows)}')
-            print(f'Remaining actions: {str(b.tokens)}')
+            print(self.get_bot_info(b))
             if b.scheduled_follows:
                 self.start(b.username,b.password,2,forced=True)
             elif b.scheduled_unfollows:
@@ -104,6 +105,29 @@ class Controller():
             session.commit()
         return user
     
+    def get_bot_info(self,bot:Bot_Account)->str:
+        info=f'''|-------|Account|-------|
+Username: {bot.username}
+
+|-------|Configuration|-------|
+Remaining actions: {str(bot.tokens)}
+Max Daily actions: {str(bot.actions_per_day)}
+Wait time after click: {str(bot.wait_after_click)} (seconds)
+Browser Visible: {str(bot.browser_visible)}
+
+|-------|Stats|-------|
+Total followed: {str(bot.total_followed)}
+Total unfollowed: {str(bot.total_unfollowed)}
+Total Logins: {str(bot.logins)}
+Following with this app: {str(len(json.loads(bot.following_list_json)))}
+
+|-------|Automatic actions|-------|
+Scheduled follows: {str(bot.scheduled_follows)}
+Scheduled unfollows: {str(bot.scheduled_unfollows)} 
+Scheduler activated: {str(bot.scheduled_enabled)}
+        '''
+        return info
+
     def remove_bot(self,username):
         user=session.query(Bot_Account).filter_by(username=username).first()
         if user:
