@@ -1,7 +1,6 @@
 # InstaGrow 1 (Pre Alpha)
 
 ## Instagrow2 is coming!
-## Compare pros/cons
 
 ## Instagrow1 vs Instagrow2... Should i use 1 or 2?
 - Instagrow1
