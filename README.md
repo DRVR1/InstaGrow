@@ -1,4 +1,16 @@
-# InstaGrow (Pre Alpha)
+# InstaGrow 1 (Pre Alpha)
+
+## Instagrow2 is coming!
+## Compare pros/cons
+
+## Instagrow1 vs Instagrow2... Should i use 1 or 2?
+- Instagrow1
+- &ensp; &ensp;pros: |----|Almost undetected as a bot by instagram|----|
+- &ensp; &ensp;cons:   |Slower| ---- |cross plataform not suported yet| ---- |requires periodic maintaining (may fail when you use it)|
+
+- Instagrow2
+- &ensp;&ensp; pros: ----|Easier to scrape user data|----|unofficial api support (instagrapi)|----|almost no maintaining required|----|
+- &ensp;&ensp; cons: ----|Increased detection rate from instagram|----
 
 ## Project Description
 Computer softare, that automatically logs in your instagram account, and performs a defined number of actions per day, increasing your account visibility. 
