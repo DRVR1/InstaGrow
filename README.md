@@ -1,6 +1,6 @@
 # InstaGrow 
 
-## ⚠️ This project is no longer being maintained so it may not work, please check the new project instagrow2[https://github.com/DRVR1/Instagrow2] ⚠️
+## ⚠️ This project is no longer being maintained so it may not work, please check the new project (instagrow2)[https://github.com/DRVR1/Instagrow2] ⚠️
 
 ## Project Description
 Computer softare, that automatically logs in your instagram account, and performs a defined number of actions per day, increasing your account visibility. 
